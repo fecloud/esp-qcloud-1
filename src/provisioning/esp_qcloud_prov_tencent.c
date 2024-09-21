@@ -48,7 +48,7 @@
 #include "esp_qcloud_storage.h"
 #include "esp_qcloud_iothub.h"
 #include "esp_qcloud_prov.h"
-#include <qrcode.h>
+
 #include "esp_qcloud_prov_tencent.h"
 
 #define PROV_QR_VERSION            "v1"
@@ -110,23 +110,6 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
         }
     }
-}
-
-void esp_qcloud_prov_print_wechat_qr(void)
-{
-    char *qcloud_payload = NULL;
-    char *terminal_payload = NULL;
-
-    asprintf(&terminal_payload, "https://iot.cloud.tencent.com/iotexplorer/device?page=adddevice&productId=%s&ver=%s", esp_qcloud_get_product_id(), PROV_QR_VERSION);
-    ESP_LOGI(TAG, "Scan this QR code from the Wechat for Provisioning.");
-    qrcode_display(terminal_payload);
-
-    asprintf(&qcloud_payload, "https://iot.cloud.tencent.com/iotexplorer/device?page=adddevice%%26productId=%s%%26ver=%s", esp_qcloud_get_product_id(), PROV_QR_VERSION);
-    ESP_LOGI(TAG, "If QR code is not visible, copy paste the below URL in a browser.\n%s?data=%s",
-             "https://rainmaker.espressif.com/qrcode.html", qcloud_payload);
-
-    ESP_QCLOUD_FREE(qcloud_payload);
-    ESP_QCLOUD_FREE(terminal_payload);
 }
 
 esp_err_t esp_qcloud_prov_data_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
@@ -257,9 +240,9 @@ esp_err_t esp_qcloud_prov_udp_server_start()
         ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
 
-#if (CONFIG_LIGHT_PROVISIONING_SMARTCONFIG) || (CONFIG_LIGHT_PROVISIONING_SOFTAPCONFIG)
+//#if (CONFIG_LIGHT_PROVISIONING_SMARTCONFIG) || (CONFIG_LIGHT_PROVISIONING_SOFTAPCONFIG)
         xTaskCreate(udp_server_task, "prov_udp_server", 4096, NULL, 5, NULL);
-#endif
+//#endif
     }
 
     return ESP_OK;
